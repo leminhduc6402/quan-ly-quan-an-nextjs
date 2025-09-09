@@ -35,7 +35,7 @@ export default function LoginForm() {
     try {
       const result = await loginMutation.mutateAsync(data);
       if (result.status === 200) {
-        toast.success("Login success");
+        toast.success("Đăng nhập thành công");
         router.push("/manage/dashboard");
       }
     } catch (error) {

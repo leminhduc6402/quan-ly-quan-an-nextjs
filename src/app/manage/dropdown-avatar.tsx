@@ -31,7 +31,7 @@ export default function DropdownAvatar() {
     try {
       const result = await logoutMutation.mutateAsync();
       if (result.status === 200) {
-        toast.success("Logout success");
+        toast.success("Đăng xuất thành công");
         router.push("/");
       }
     } catch (error) {
