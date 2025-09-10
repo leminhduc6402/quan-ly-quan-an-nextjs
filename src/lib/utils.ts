@@ -7,9 +7,11 @@ import { toast } from "sonner";
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
+
 export const normalizePath = (path: string) => {
   return path.startsWith("/") ? path.slice(1) : path;
 };
+
 export const handleErrorApi = ({
   error,
   setError,
@@ -34,3 +36,16 @@ export const handleErrorApi = ({
     });
   }
 };
+
+const isBrowser = typeof window !== "undefined";
+export const getAccessTokenFromLocalStorage = () =>
+  isBrowser ? localStorage.getItem("accessToken") : null;
+
+export const setAccessTokenToLocalStorage = (value: string) =>
+  isBrowser ? localStorage.setItem("accessToken", value) : null;
+
+export const getRefreshTokenFromLocalStorage = () =>
+  isBrowser ? localStorage.getItem("refreshToken") : null;
+
+export const setRefreshTokenToLocalStorage = (value: string) =>
+  isBrowser ? localStorage.setItem("refreshToken", value) : null;
