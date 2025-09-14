@@ -15,6 +15,7 @@ const LogoutPage = () => {
   const searchParams = useSearchParams();
   const refreshTokenFromUrl = searchParams.get("rT");
   const accessTokenFromUrl = searchParams.get("accessToken");
+
   useEffect(() => {
     const isRefreshTokenChanged =
       refreshTokenFromUrl &&
@@ -27,7 +28,7 @@ const LogoutPage = () => {
     if (ref.current || isRefreshTokenChanged || isAccessTokenChanged) {
       return;
     }
-    
+
     ref.current = mutateAsync;
 
     mutateAsync().then((res) => {
