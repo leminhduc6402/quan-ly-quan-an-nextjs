@@ -52,6 +52,10 @@ export const getRefreshTokenFromLocalStorage = () =>
 
 export const setRefreshTokenToLocalStorage = (value: string) =>
   isBrowser && localStorage.setItem("refreshToken", value);
+export const removeTokensFromLocalStorage = () => {
+  isBrowser && localStorage.removeItem("accessToken");
+  isBrowser && localStorage.removeItem("refreshToken");
+};
 
 export const checkAndRefreshToken = async (param?: {
   onError?: () => void;
@@ -70,10 +74,14 @@ export const checkAndRefreshToken = async (param?: {
     exp: number;
     iat: number;
   };
-  const now = Math.round(new Date().getTime() / 1000);
+  const now = new Date().getTime() / 1000 - 1;
 
   // refresh token expired
-  if (decodeRefreshToken.exp <= now) return;
+  if (decodeRefreshToken.exp <= now) {
+    removeTokensFromLocalStorage();
+    param?.onError && param.onError();
+    return;
+  }
   // call api refresh token
   const lifetime = decodeAccessToken.exp - decodeAccessToken.iat;
   const remaining = decodeAccessToken.exp - now;

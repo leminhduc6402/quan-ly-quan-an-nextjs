@@ -12,7 +12,6 @@ const RefreshTokenPage = () => {
   const searchParams = useSearchParams();
   const refreshTokenFromUrl = searchParams.get("rT");
   const redirectPathname = searchParams.get("redirect");
-  const ref = useRef<any>(null);
   useEffect(() => {
     if (
       refreshTokenFromUrl &&
