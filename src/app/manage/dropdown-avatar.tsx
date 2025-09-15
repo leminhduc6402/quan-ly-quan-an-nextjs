@@ -15,6 +15,7 @@ import { handleErrorApi } from "@/lib/utils";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { useAccountProfile } from "@/queries/useAccount";
+import { useAppContext } from "@/components/app-provider";
 
 // const account = {
 //   name: "Nguyễn Văn A",
@@ -22,15 +23,17 @@ import { useAccountProfile } from "@/queries/useAccount";
 // };
 
 export default function DropdownAvatar() {
+  const { setIsAuth } = useAppContext();
   const logoutMutation = useLogoutMutation();
+  const router = useRouter();
   const { data } = useAccountProfile();
   const account = data?.payload.data;
-  const router = useRouter();
   const logout = async () => {
     if (logoutMutation.isPending) return;
     try {
       const result = await logoutMutation.mutateAsync();
       if (result.status === 200) {
+        setIsAuth(false);
         toast.success("Đăng xuất thành công");
         router.push("/");
       }

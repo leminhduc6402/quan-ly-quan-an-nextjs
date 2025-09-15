@@ -1,4 +1,5 @@
 "use client";
+import { useAppContext } from "@/components/app-provider";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -7,20 +8,25 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { Form, FormField, FormItem, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useForm } from "react-hook-form";
-import { Form, FormField, FormItem, FormMessage } from "@/components/ui/form";
+import { handleErrorApi } from "@/lib/utils";
+import { useLoginMutation } from "@/queries/useAuth";
 import { LoginBody, LoginBodyType } from "@/schemaValidations/auth.schema";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useLoginMutation } from "@/queries/useAuth";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useEffect } from "react";
+import { useForm } from "react-hook-form";
 import { toast } from "sonner";
-import { handleErrorApi } from "@/lib/utils";
-import { useRouter } from "next/navigation";
 
 export default function LoginForm() {
+  const { setIsAuth } = useAppContext();
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const clearTokens = searchParams.get("clearTokens");
   const loginMutation = useLoginMutation();
+
   const form = useForm<LoginBodyType>({
     resolver: zodResolver(LoginBody),
     defaultValues: {
@@ -28,6 +34,12 @@ export default function LoginForm() {
       password: "123123",
     },
   });
+
+  useEffect(() => {
+    if (clearTokens) {
+      setIsAuth(false);
+    }
+  }, [setIsAuth]);
   const onSubmit = async (data: LoginBodyType) => {
     if (loginMutation.isPending) {
       return;
@@ -36,6 +48,7 @@ export default function LoginForm() {
       const result = await loginMutation.mutateAsync(data);
       if (result.status === 200) {
         toast.success("Đăng nhập thành công");
+        setIsAuth(true);
         router.push("/manage/dashboard");
       }
     } catch (error) {

@@ -1,5 +1,6 @@
 "use client";
 
+import { useAppContext } from "@/components/app-provider";
 import {
   getAccessTokenFromLocalStorage,
   getRefreshTokenFromLocalStorage,
@@ -9,6 +10,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useRef } from "react";
 
 const LogoutPage = () => {
+  const { setIsAuth } = useAppContext();
   const { mutateAsync } = useLogoutMutation();
   const router = useRouter();
   const ref = useRef<typeof mutateAsync | null>(null);
@@ -19,25 +21,26 @@ const LogoutPage = () => {
   useEffect(() => {
     const isRefreshTokenChanged =
       refreshTokenFromUrl &&
-      refreshTokenFromUrl !== getRefreshTokenFromLocalStorage();
+      refreshTokenFromUrl === getRefreshTokenFromLocalStorage();
 
     const isAccessTokenChanged =
       accessTokenFromUrl &&
-      accessTokenFromUrl !== getAccessTokenFromLocalStorage();
+      accessTokenFromUrl === getAccessTokenFromLocalStorage();
 
-    if (ref.current || isRefreshTokenChanged || isAccessTokenChanged) {
-      return;
+    if (!ref.current && (isRefreshTokenChanged || isAccessTokenChanged)) {
+      ref.current = mutateAsync;
+
+      mutateAsync().then((res) => {
+        setTimeout(() => {
+          ref.current = null;
+        }, 1000);
+        setIsAuth(false);
+        router.push("/login");
+      });
+    } else {
+      router.push("/");
     }
-
-    ref.current = mutateAsync;
-
-    mutateAsync().then((res) => {
-      setTimeout(() => {
-        ref.current = null;
-      }, 1000);
-      router.push("/login");
-    });
-  }, [router, mutateAsync]);
+  }, [router, mutateAsync, refreshTokenFromUrl, accessTokenFromUrl]);
 
   return <div>Logout...</div>;
 };
