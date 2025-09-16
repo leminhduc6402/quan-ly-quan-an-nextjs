@@ -31,7 +31,6 @@ export function middleware(request: NextRequest) {
     url.searchParams.set("redirect", pathname);
     return NextResponse.redirect(url);
   }
-
   return NextResponse.next();
 }
 
