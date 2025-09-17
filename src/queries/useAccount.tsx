@@ -1,8 +1,5 @@
 import accountApiRequest from "@/apiRequests/account";
-import {
-  AccountResType,
-  UpdateEmployeeAccountBodyType,
-} from "@/schemaValidations/account.schema";
+import { UpdateEmployeeAccountBodyType } from "@/schemaValidations/account.schema";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 export const useAccountProfile = () => {
