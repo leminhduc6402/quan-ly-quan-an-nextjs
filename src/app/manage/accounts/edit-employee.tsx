@@ -54,7 +54,7 @@ export default function EditEmployee({
   const avatar = form.watch("avatar");
   const name = form.watch("name");
   const changePassword = form.watch("changePassword");
-  
+
   const previewAvatarFromFile = useMemo(() => {
     if (file) {
       return URL.createObjectURL(file);
@@ -94,20 +94,23 @@ export default function EditEmployee({
       }
       const result = await updateAccountMutation.mutateAsync(body);
       if (result.status === 200) {
-        toast.success("Cập nhật thông tin người dùng thành công");
+        reset();
         onSubmitSuccess && onSubmitSuccess();
       } else toast.error("Cập nhật thông tin người dùng thất bại");
     } catch (error) {
       handleErrorApi({ error, setError: form.setError });
     }
   };
-
+  const reset = () => {
+    setId(undefined);
+    setFile(null);
+  };
   return (
     <Dialog
       open={Boolean(id)}
       onOpenChange={(value) => {
         if (!value) {
-          setId(undefined);
+          reset();
         }
       }}
     >
@@ -134,7 +137,7 @@ export default function EditEmployee({
                     <div className="flex gap-2 items-start justify-start">
                       <Avatar className="aspect-square w-[100px] h-[100px] rounded-md object-cover">
                         <AvatarImage src={previewAvatarFromFile} />
-                        <AvatarFallback className="rounded-none">
+                        <AvatarFallback className="rounded-none text-center text-wrap">
                           {name || "Avatar"}
                         </AvatarFallback>
                       </Avatar>
