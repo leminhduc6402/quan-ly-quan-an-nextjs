@@ -68,13 +68,12 @@ export default function AddEmployee() {
         );
         const imageUrl = uploadAvatarResult.payload.data;
         body = { ...data, avatar: imageUrl };
-        const result = await addAccountMutation.mutateAsync(body);
-
-        if (result.status === 200) toast.success("Cập nhật thành công");
-        else toast.error("Cập nhật thất bại");
-        reset();
-        setOpen(false);
       }
+      const result = await addAccountMutation.mutateAsync(body);
+      if (result.status === 200) toast.success("Thêm người dùng thành công");
+      else toast.error("Thêm người dùng thất bại");
+      reset();
+      setOpen(false);
     } catch (error) {
       handleErrorApi({ error, setError: form.setError });
     }
@@ -102,6 +101,8 @@ export default function AddEmployee() {
             noValidate
             className="grid auto-rows-max items-start gap-4 md:gap-8"
             id="add-employee-form"
+            onSubmit={form.handleSubmit(onSubmit)}
+            onReset={reset}
           >
             <div className="grid gap-4 py-4">
               <FormField
