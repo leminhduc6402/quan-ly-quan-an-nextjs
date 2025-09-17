@@ -53,7 +53,12 @@ import {
 } from "@/components/ui/alert-dialog";
 import { useSearchParams } from "next/navigation";
 import AutoPagination from "@/components/auto-pagination";
-import { useGetAccountList } from "@/queries/useAccount";
+import {
+  useDeleteAccountMutation,
+  useGetAccountList,
+} from "@/queries/useAccount";
+import { toast } from "sonner";
+import { handleErrorApi } from "@/lib/utils";
 
 type AccountItem = AccountListResType["data"][0];
 
@@ -150,6 +155,18 @@ function AlertDialogDeleteAccount({
   employeeDelete: AccountItem | null;
   setEmployeeDelete: (value: AccountItem | null) => void;
 }) {
+  const { mutateAsync } = useDeleteAccountMutation();
+  const deleteAccount = async () => {
+    if (employeeDelete) {
+      try {
+        await mutateAsync(employeeDelete.id);
+        setEmployeeDelete(null);
+        toast.success("Xóa tài khoản thành công");
+      } catch (error) {
+        handleErrorApi({ error });
+      }
+    }
+  };
   return (
     <AlertDialog
       open={Boolean(employeeDelete)}
@@ -161,7 +178,7 @@ function AlertDialogDeleteAccount({
     >
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>Xóa nhân viên?</AlertDialogTitle>
+          <AlertDialogTitle>Xóa nhân viên? </AlertDialogTitle>
           <AlertDialogDescription>
             Tài khoản{" "}
             <span className="bg-foreground text-primary-foreground rounded px-1">
@@ -171,8 +188,13 @@ function AlertDialogDeleteAccount({
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel>Cancel</AlertDialogCancel>
-          <AlertDialogAction>Continue</AlertDialogAction>
+          <AlertDialogCancel>Huỷ</AlertDialogCancel>
+          <AlertDialogAction
+            onClick={deleteAccount}
+            className="bg-red-600 text-white"
+          >
+            Đồng ý
+          </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>
