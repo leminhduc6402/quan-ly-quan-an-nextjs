@@ -44,13 +44,19 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { formatCurrency, getVietnameseDishStatus } from "@/lib/utils";
+import {
+  formatCurrency,
+  getVietnameseDishStatus,
+  handleErrorApi,
+} from "@/lib/utils";
 import { useSearchParams } from "next/navigation";
 import AutoPagination from "@/components/auto-pagination";
 import { DishListResType } from "@/schemaValidations/dish.schema";
 import EditDish from "@/app/manage/dishes/edit-dish";
 import AddDish from "@/app/manage/dishes/add-dish";
-import { useGetDishList } from "@/queries/useDish";
+import { useDeleteDishMutation, useGetDishList } from "@/queries/useDish";
+import { toast } from "sonner";
+import DOMPurify from "dompurify";
 
 type DishItem = DishListResType["data"][0];
 
@@ -102,7 +108,9 @@ export const columns: ColumnDef<DishItem>[] = [
     header: "Mô tả",
     cell: ({ row }) => (
       <div
-        dangerouslySetInnerHTML={{ __html: row.getValue("description") }}
+        dangerouslySetInnerHTML={{
+          __html: DOMPurify.sanitize(row.getValue("description")),
+        }}
         className="whitespace-pre-line"
       />
     ),
@@ -153,6 +161,18 @@ function AlertDialogDeleteDish({
   dishDelete: DishItem | null;
   setDishDelete: (value: DishItem | null) => void;
 }) {
+  const { mutateAsync } = useDeleteDishMutation();
+  const deleteDish = async () => {
+    if (dishDelete) {
+      try {
+        await mutateAsync(dishDelete.id);
+        setDishDelete(null);
+        toast.success("Xoá món ăn thành công");
+      } catch (error) {
+        handleErrorApi({ error });
+      }
+    }
+  };
   return (
     <AlertDialog
       open={Boolean(dishDelete)}
@@ -174,8 +194,13 @@ function AlertDialogDeleteDish({
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel>Cancel</AlertDialogCancel>
-          <AlertDialogAction>Continue</AlertDialogAction>
+          <AlertDialogCancel>Huỷ</AlertDialogCancel>
+          <AlertDialogAction
+            onClick={deleteDish}
+            className="bg-red-600 text-white"
+          >
+            Đồng ý
+          </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>

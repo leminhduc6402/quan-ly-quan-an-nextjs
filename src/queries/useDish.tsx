@@ -43,17 +43,17 @@ export const useUpdateDishMutation = () => {
       id: number;
     }) => dishApiRequest.updateDish(id, body),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["accounts"], exact: true });
+      queryClient.invalidateQueries({ queryKey: ["dishes"], exact: true });
     },
   });
 };
 
-export const useDeleteAccountMutation = () => {
+export const useDeleteDishMutation = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: dishApiRequest.deleteDish,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["accounts"] });
+      queryClient.invalidateQueries({ queryKey: ["dishes"] });
     },
   });
 };
