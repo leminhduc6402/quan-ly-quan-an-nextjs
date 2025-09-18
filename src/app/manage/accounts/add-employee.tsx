@@ -72,8 +72,8 @@ export default function AddEmployee() {
       const result = await addAccountMutation.mutateAsync(body);
       if (result.status === 200) toast.success("Thêm người dùng thành công");
       else toast.error("Thêm người dùng thất bại");
-      reset();
       setOpen(false);
+      reset();
     } catch (error) {
       handleErrorApi({ error, setError: form.setError });
     }

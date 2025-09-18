@@ -77,7 +77,7 @@ export const columns: ColumnDef<DishItem>[] = [
       <div>
         <Avatar className="aspect-square w-[100px] h-[100px] rounded-md object-cover">
           <AvatarImage src={row.getValue("image")} />
-          <AvatarFallback className="rounded-none">
+          <AvatarFallback className="rounded-none text-center text-wrap">
             {row.original.name}
           </AvatarFallback>
         </Avatar>

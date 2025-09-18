@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
@@ -22,7 +23,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { getVietnameseDishStatus } from "@/lib/utils";
+import { getVietnameseDishStatus, handleErrorApi } from "@/lib/utils";
 import {
   CreateDishBody,
   CreateDishBodyType,
@@ -36,19 +37,23 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { useAddDishMutation } from "@/queries/useDish";
+import { useUploadMediaMutation } from "@/queries/useMedia";
+import { toast } from "sonner";
 
 export default function AddDish() {
   const [file, setFile] = useState<File | null>(null);
   const [open, setOpen] = useState(false);
   const imageInputRef = useRef<HTMLInputElement | null>(null);
-
+  const addDishMutation = useAddDishMutation();
+  const uploadMediaMutation = useUploadMediaMutation();
   const form = useForm<CreateDishBodyType>({
     resolver: zodResolver(CreateDishBody),
     defaultValues: {
       name: "",
       description: "",
       price: 0,
-      image: "",
+      image: undefined,
       status: DishStatus.Unavailable,
     },
   });
@@ -61,6 +66,29 @@ export default function AddDish() {
     }
     return image;
   }, [file, image]);
+
+  const reset = () => {
+    form.reset();
+    setFile(null);
+  };
+  const onSubmit = async (data: CreateDishBodyType) => {
+    if (addDishMutation.isPending) return;
+    try {
+      let body = data;
+      if (file) {
+        const formData = new FormData();
+        formData.append("file", file);
+        const uploadResponse = await uploadMediaMutation.mutateAsync(formData);
+        body = { ...data, image: uploadResponse.payload.data };
+      }
+      await addDishMutation.mutateAsync(body);
+      toast.success("Thêm món ăn thành công");
+      setOpen(false);
+      reset();
+    } catch (error) {
+      handleErrorApi({ error, setError: form.setError });
+    }
+  };
 
   return (
     <Dialog onOpenChange={setOpen} open={open}>
@@ -81,6 +109,8 @@ export default function AddDish() {
             noValidate
             className="grid auto-rows-max items-start gap-4 md:gap-8"
             id="add-dish-form"
+            onSubmit={form.handleSubmit(onSubmit)}
+            onReset={reset}
           >
             <div className="grid gap-4 py-4">
               <FormField
@@ -91,7 +121,7 @@ export default function AddDish() {
                     <div className="flex gap-2 items-start justify-start">
                       <Avatar className="aspect-square w-[100px] h-[100px] rounded-md object-cover">
                         <AvatarImage src={previewAvatarFromFile} />
-                        <AvatarFallback className="rounded-none">
+                        <AvatarFallback className="rounded-none text-center text-wrap">
                           {name || "Avatar"}
                         </AvatarFallback>
                       </Avatar>
@@ -119,6 +149,7 @@ export default function AddDish() {
                         <span className="sr-only">Upload</span>
                       </button>
                     </div>
+                    <FormMessage />
                   </FormItem>
                 )}
               />
@@ -169,6 +200,7 @@ export default function AddDish() {
                         <Textarea
                           id="description"
                           className="w-full"
+                          aria-describedby="description"
                           {...field}
                         />
                         <FormMessage />
@@ -212,6 +244,7 @@ export default function AddDish() {
             </div>
           </form>
         </Form>
+        <DialogDescription></DialogDescription>
         <DialogFooter>
           <Button type="submit" form="add-dish-form">
             Thêm
