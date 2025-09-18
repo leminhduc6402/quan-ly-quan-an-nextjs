@@ -28,7 +28,7 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { DishStatus, DishStatusValues } from "@/constants/type";
 import { getVietnameseDishStatus, handleErrorApi } from "@/lib/utils";
-import { useGetDish, useUpdateDishMutation } from "@/queries/useDish";
+import { useGetDishQuery, useUpdateDishMutation } from "@/queries/useDish";
 import { useUploadMediaMutation } from "@/queries/useMedia";
 import {
   UpdateDishBody,
@@ -50,7 +50,7 @@ export default function EditDish({
   onSubmitSuccess?: () => void;
 }) {
   const [file, setFile] = useState<File | null>(null);
-  const { data } = useGetDish({ id: id as number, enabled: Boolean(id) });
+  const { data } = useGetDishQuery({ id: id as number, enabled: Boolean(id) });
   const updateDishMutation = useUpdateDishMutation();
   const uploadMediaMutation = useUploadMediaMutation();
   const imageInputRef = useRef<HTMLInputElement | null>(null);
